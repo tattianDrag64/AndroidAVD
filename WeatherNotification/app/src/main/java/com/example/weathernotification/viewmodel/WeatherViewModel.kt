@@ -1,5 +1,6 @@
 package com.example.weathernotification.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weathernotification.data.entity.WeatherEntity
@@ -23,16 +24,21 @@ class WeatherViewModel(
 
     fun loadWeather(city: String) {
         viewModelScope.launch {
-            val response = repository.loadWeatherFromApi(city)
+            try {
+                val response = repository.loadWeatherFromApi(city)
 
-            val entity = WeatherEntity(
-                city = response.name,
-                temp = response.main.temp,
-                wind = response.wind.speed,
-                time = System.currentTimeMillis().toString()
-            )
-            _weather.value = entity
-            repository.saveWeatherToDb(entity)
+                val entity = WeatherEntity(
+                    city = response.name,
+                    temp = response.main.temp,
+                    wind = response.wind.speed,
+                    time = System.currentTimeMillis().toString()
+                )
+                _weather.value = entity
+                repository.saveWeatherToDb(entity)
+            } catch (e: Exception) {
+                Log.e("WeatherViewModel", "Error loading weather", e)
+                // Optionally, you can expose the error to the UI
+            }
         }
     }
 

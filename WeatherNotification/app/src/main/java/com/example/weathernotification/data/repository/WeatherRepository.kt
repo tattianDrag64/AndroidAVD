@@ -13,7 +13,7 @@ class WeatherRepository(
     suspend fun loadWeatherFromApi(city: String): WeatherResponse {
         return api.getWeather(
             city = city,
-            apiKey = "b6907d289e10d714a6e88b30761fae22"
+            apiKey = "e85d5ad8024cbbdbff457538e711f0cf"
         )
     }
 
