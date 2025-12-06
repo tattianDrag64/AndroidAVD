@@ -1,39 +1,62 @@
 package com.example.weathernotification.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.weathernotification.ui.list.CityListScreen
-import com.example.weathernotification.ui.weather.WeatherScreen
+import com.example.weathernotification.data.DatabaseProvider
+import com.example.weathernotification.ui.screens.SavedWeatherScreen
+import com.example.weathernotification.ui.screens.WeatherScreen
+import com.example.weathernotification.viewmodel.ThemeViewModel
+import com.example.weathernotification.viewmodel.WeatherViewModel
+import com.example.weathernotification.viewmodel.WeatherViewModelFactory
 
 @Composable
-fun AppNavHost() {
+fun AppNavHost(
+    themeViewModel: ThemeViewModel
+) {
     val navController = rememberNavController()
+    val context = LocalContext.current
+    val repository = DatabaseProvider.provideWeatherRepository(context)
+    val weatherViewModel: WeatherViewModel = viewModel(
+        factory = WeatherViewModelFactory(repository)
+    )
 
-    NavHost(
-        navController = navController,
-        startDestination = "list"
-    ) {
-        composable("list") {
-            CityListScreen(navController)
-        }
-
+    NavHost(navController = navController, startDestination = "weather") {
         composable(
-            route = "weather/{lat}/{lon}/{name}",
-            arguments = listOf(
-                navArgument("lat") { type = NavType.FloatType },
-                navArgument("lon") { type = NavType.FloatType },
-                navArgument("name") { type = NavType.StringType }
-            )
+            route = "weather?city={city}",
+            arguments = listOf(navArgument("city") {
+                type = NavType.StringType
+                nullable = true
+            })
         ) { backStackEntry ->
-            val lat = backStackEntry.arguments?.getFloat("lat") ?: 0f
-            val lon = backStackEntry.arguments?.getFloat("lon") ?: 0f
-            val name = backStackEntry.arguments?.getString("name") ?: ""
+            val city = backStackEntry.arguments?.getString("city")
+            val savedWeatherList by weatherViewModel.savedWeather.collectAsState()
+            val weather = savedWeatherList.find { it.city == city }
 
-            WeatherScreen(lat.toDouble(), lon.toDouble(), name)
+            WeatherScreen(
+                weatherViewModel = weatherViewModel,
+                themeViewModel = themeViewModel,
+                navController = navController,
+                defaultCity = city ?: "",
+                weatherItem = weather,
+                onBack = if (navController.previousBackStackEntry != null) {
+                    {
+                        navController.popBackStack()
+                    }
+                } else {
+                    null
+                }
+            )
+        }
+        composable("saved") {
+            SavedWeatherScreen(viewModel = weatherViewModel, navController = navController)
         }
     }
 }

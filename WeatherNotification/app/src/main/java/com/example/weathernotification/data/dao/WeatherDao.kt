@@ -15,4 +15,7 @@ interface WeatherDao {
 
     @Delete
     suspend fun deleteWeather(weather: WeatherEntity)
+
+    @Update
+    suspend fun updateWeather(weather: WeatherEntity)
 }

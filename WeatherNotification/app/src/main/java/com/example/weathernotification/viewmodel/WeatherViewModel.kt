@@ -22,6 +22,10 @@ class WeatherViewModel(
         .getSavedWeather()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    fun setWeather(weather: WeatherEntity) {
+        _weather.value = weather
+    }
+
     fun loadWeather(city: String) {
         viewModelScope.launch {
             try {
@@ -34,17 +38,44 @@ class WeatherViewModel(
                     time = System.currentTimeMillis().toString()
                 )
                 _weather.value = entity
-                repository.saveWeatherToDb(entity)
             } catch (e: Exception) {
                 Log.e("WeatherViewModel", "Error loading weather", e)
-                // Optionally, you can expose the error to the UI
             }
+        }
+    }
+
+    fun saveWeather(city: String, temp: Double, wind: Double) {
+        viewModelScope.launch {
+            val entity = WeatherEntity(
+                city = city,
+                temp = temp,
+                wind = wind,
+                time = System.currentTimeMillis().toString()
+            )
+            repository.saveWeatherToDb(entity)
         }
     }
 
     fun deleteWeather(weather: WeatherEntity) {
         viewModelScope.launch {
             repository.deleteWeather(weather)
+        }
+    }
+
+    fun updateWeather(weather: WeatherEntity) {
+        viewModelScope.launch {
+            try {
+                val response = repository.loadWeatherFromApi(weather.city)
+                val updatedEntity = weather.copy(
+                    temp = response.main.temp,
+                    wind = response.wind.speed,
+                    time = System.currentTimeMillis().toString()
+                )
+                repository.updateWeather(updatedEntity)
+                _weather.value = updatedEntity
+            } catch (e: Exception) {
+                Log.e("WeatherViewModel", "Error updating weather", e)
+            }
         }
     }
 }

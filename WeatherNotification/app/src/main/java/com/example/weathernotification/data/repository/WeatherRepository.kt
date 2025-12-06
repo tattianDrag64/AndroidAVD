@@ -31,4 +31,9 @@ class WeatherRepository(
     suspend fun deleteWeather(weather: WeatherEntity) {
         dao.deleteWeather(weather)
     }
+
+    // updating in room
+    suspend fun updateWeather(weather: WeatherEntity) {
+        dao.updateWeather(weather)
+    }
 }

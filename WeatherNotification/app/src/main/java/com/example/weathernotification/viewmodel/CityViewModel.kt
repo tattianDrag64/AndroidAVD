@@ -5,13 +5,11 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weathernotification.data.DatabaseProvider
 import com.example.weathernotification.data.entity.CityEntity
-import com.example.weathernotification.data.repository.CityRepository
 import kotlinx.coroutines.launch
 
 class CityViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val dao = DatabaseProvider.getDatabase(application).cityDao()
-    private val repository = CityRepository(dao)
+    private val repository = DatabaseProvider.provideCityRepository(application)
 
     val cities = repository.getAllCities()
 
@@ -29,5 +27,3 @@ class CityViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 }
-
-
