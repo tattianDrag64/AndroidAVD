@@ -4,13 +4,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weathernotification.data.entity.WeatherEntity
 import com.example.weathernotification.data.repository.WeatherRepository
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class WeatherViewModel(
     private val repository: WeatherRepository
 ) : ViewModel() {
+
+    private val _weather = MutableStateFlow<WeatherEntity?>(null)
+    val weather = _weather.asStateFlow()
 
     val savedWeather = repository
         .getSavedWeather()
@@ -26,7 +31,7 @@ class WeatherViewModel(
                 wind = response.wind.speed,
                 time = System.currentTimeMillis().toString()
             )
-
+            _weather.value = entity
             repository.saveWeatherToDb(entity)
         }
     }

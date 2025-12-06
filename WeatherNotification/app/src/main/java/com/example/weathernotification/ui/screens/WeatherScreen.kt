@@ -14,8 +14,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -26,7 +26,7 @@ import com.example.weathernotification.viewmodel.WeatherViewModel
 @Composable
 fun WeatherScreen(viewModel: WeatherViewModel) {
 
-    val weather by viewModel.weather.observeAsState()
+    val weather by viewModel.weather.collectAsState()
     var city by remember { mutableStateOf("") }
 
     Column(
@@ -73,20 +73,16 @@ fun WeatherScreen(viewModel: WeatherViewModel) {
                 ) {
 
                     Text(
-                        text = "City: ${data.name}",
+                        text = "City: ${data.city}",
                         style = MaterialTheme.typography.titleMedium
                     )
 
                     Text(
-                        text = "Temperature: ${data.main.temp} °C"
+                        text = "Temperature: ${data.temp} °C"
                     )
 
                     Text(
-                        text = "Humidity: ${data.main.humidity}%"
-                    )
-
-                    Text(
-                        text = "Description: ${data.weather.firstOrNull()?.description}"
+                        text = "Wind: ${data.wind} m/s"
                     )
                 }
             }

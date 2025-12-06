@@ -6,10 +6,11 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.weathernotification.data.dao.CityDao
 import com.example.weathernotification.data.dao.WeatherDao
+import com.example.weathernotification.data.entity.CityEntity
 import com.example.weathernotification.data.entity.WeatherEntity
 
 @Database(
-    entities = [WeatherEntity::class],
+    entities = [WeatherEntity::class, CityEntity::class],
     version = 1,
     exportSchema = false
 )

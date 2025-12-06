@@ -1,6 +1,5 @@
 package com.example.weathernotification.data.repository
 
-import WeatherResponse
 import com.example.weathernotification.data.dao.WeatherDao
 import com.example.weathernotification.data.entity.WeatherEntity
 import com.example.weathernotification.data.remote.api.WeatherApi
