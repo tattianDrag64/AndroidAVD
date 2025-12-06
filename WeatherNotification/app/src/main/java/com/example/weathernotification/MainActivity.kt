@@ -1,4 +1,4 @@
-package com.example.weather_notification
+package com.example.weathernotification
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -11,20 +11,24 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.weather_notification.ui.theme.Weather_NotificationTheme
+import com.example.weathernotification.data.DatabaseProvider
+import com.example.weathernotification.ui.AppNavHost
+import com.example.weathernotification.ui.screens.WeatherScreen
+import com.example.weathernotification.ui.theme.WeatherNotificationTheme
+import com.example.weathernotification.viewmodel.WeatherViewModel
+import com.example.weathernotification.data.repository.WeatherRepository
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            Weather_NotificationTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+//            val db = DatabaseProvider.getDatabase(this)
+            val repository = DatabaseProvider.provideWeatherRepository(this)
+            val viewModel = WeatherViewModel(repository)
+
+            WeatherNotificationTheme {
+                WeatherScreen(viewModel = viewModel)
             }
         }
     }
@@ -41,7 +45,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    Weather_NotificationTheme {
+    WeatherNotificationTheme {
         Greeting("Android")
     }
 }
