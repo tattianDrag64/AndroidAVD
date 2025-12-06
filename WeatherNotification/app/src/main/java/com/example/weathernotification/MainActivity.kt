@@ -8,6 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.weathernotification.data.DatabaseProvider
+import com.example.weathernotification.data.repository.ThemeRepository
 import com.example.weathernotification.presentation.NavGraph
 import com.example.weathernotification.ui.theme.WeatherNotificationTheme
 import com.example.weathernotification.viewmodel.Theme
@@ -20,15 +21,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val themeViewModel: ThemeViewModel = viewModel(factory = ThemeViewModelFactory())
+            val themeRepository = ThemeRepository(LocalContext.current)
+            val themeViewModel: ThemeViewModel = viewModel(factory = ThemeViewModelFactory(themeRepository))
             val theme by themeViewModel.theme.collectAsState()
 
             WeatherNotificationTheme(
                 darkTheme = theme == Theme.DARK
             ) {
-                // Создаем репозиторий здесь, используя LocalContext
                 val repository = DatabaseProvider.provideWeatherRepository(LocalContext.current)
-                // Передаем созданный репозиторий в фабрику
                 val weatherViewModel: WeatherViewModel = viewModel(
                     factory = WeatherViewModelFactory(repository)
                 )

@@ -22,6 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -58,6 +59,16 @@ fun WeatherScreen(
             weatherViewModel.setWeather(weatherItem)
         } else if (defaultCity.isNotBlank()) {
             weatherViewModel.loadWeather(defaultCity)
+        } else {
+            // Очищаем город в текстовом поле, если мы просто зашли на экран
+            city = ""
+        }
+    }
+
+    // Очищаем состояние при уходе с экрана
+    DisposableEffect(Unit) {
+        onDispose {
+            weatherViewModel.clearWeather()
         }
     }
 
@@ -103,7 +114,9 @@ fun WeatherScreen(
             }
 
             Button(
-                onClick = { navController.navigate("saved") },
+                onClick = {
+                    navController.navigate("saved")
+                },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("View Saved Locations")

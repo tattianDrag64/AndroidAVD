@@ -63,6 +63,7 @@ fun SavedWeatherScreen(
                 WeatherItem(
                     weather = weather,
                     onClick = {
+                        viewModel.setWeather(weather)
                         navController.navigate("weather?city=${weather.city}")
                     },
                     onDelete = {

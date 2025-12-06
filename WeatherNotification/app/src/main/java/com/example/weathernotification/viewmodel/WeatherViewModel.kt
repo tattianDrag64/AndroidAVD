@@ -26,6 +26,10 @@ class WeatherViewModel(
         _weather.value = weather
     }
 
+    fun clearWeather() {
+        _weather.value = null
+    }
+
     fun loadWeather(city: String) {
         viewModelScope.launch {
             try {
@@ -59,6 +63,9 @@ class WeatherViewModel(
     fun deleteWeather(weather: WeatherEntity) {
         viewModelScope.launch {
             repository.deleteWeather(weather)
+            if (_weather.value?.id == weather.id) {
+                _weather.value = null
+            }
         }
     }
 
@@ -72,7 +79,6 @@ class WeatherViewModel(
                     time = System.currentTimeMillis().toString()
                 )
                 repository.updateWeather(updatedEntity)
-                _weather.value = updatedEntity
             } catch (e: Exception) {
                 Log.e("WeatherViewModel", "Error updating weather", e)
             }
