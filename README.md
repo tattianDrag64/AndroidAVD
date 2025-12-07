@@ -74,7 +74,7 @@ The project includes both Unit and UI tests.
 
 The APK file is located in the following path:
 (https://github.com/tattianDrag64/AndroidAVD/WeatherNotification)
----
+
 
 ## Screenshots
 
