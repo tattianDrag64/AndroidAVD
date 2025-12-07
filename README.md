@@ -73,8 +73,10 @@ The project includes both Unit and UI tests.
 ## APK
 
 The APK file is located in the following path:
-(https://github.com/tattianDrag64/AndroidAVD/WeatherNotification)
+([https://github.com/tattianDrag64/AndroidAVD/WeatherNotification](https://github.com/tattianDrag64/AndroidAVD/blob/masterr/Weather%20App.apk))
 
 
 ## Screenshots
-
+![Light Mode](https://github.com/tattianDrag64/AndroidAVD/blob/masterr/screenshots/light%20mode.jpg)
+![Dark Mode](https://github.com/tattianDrag64/AndroidAVD/blob/masterr/screenshots/dark%20mode.jpg)
+![Saved Cities](https://github.com/tattianDrag64/AndroidAVD/blob/masterr/screenshots/saved%20cities.jpg)
