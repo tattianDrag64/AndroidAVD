@@ -3,6 +3,7 @@ package com.example.weathernotification.viewmodel
 import android.util.Log
 import app.cash.turbine.test
 import com.example.weathernotification.data.remote.model.Main
+import com.example.weathernotification.data.remote.model.WeatherDescription
 import com.example.weathernotification.data.remote.model.WeatherResponse
 import com.example.weathernotification.data.remote.model.Wind
 import com.example.weathernotification.data.repository.WeatherRepository
@@ -26,10 +27,7 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class WeatherViewModelTest {
-
-    // Используем UnconfinedTestDispatcher для немедленного выполнения корутин
     private val testDispatcher = UnconfinedTestDispatcher()
-
     private lateinit var repository: WeatherRepository
     private lateinit var viewModel: WeatherViewModel
 
@@ -53,63 +51,66 @@ class WeatherViewModelTest {
 
     @Test
     fun `loadWeather should update weather state on success`() = runTest {
-        // Given
+        // given
         val city = "London"
         val response = WeatherResponse(
             name = "London",
             main = Main(temp = 15.0, humidity = 80),
             wind = Wind(speed = 5.0),
-            weather = emptyList()
+            weather = listOf(WeatherDescription(description = "clear sky"))
         )
         coEvery { repository.loadWeatherFromApi(city) } returns response
 
-        // When
+        //when
         viewModel.loadWeather(city)
 
-        // Then
+        //then
         viewModel.weather.test {
-            // С UnconfinedTestDispatcher корутина выполняется сразу.
-            // Поэтому мы не увидим начальное значение null, а сразу получим результат.
             val item = awaitItem()
             assertNotNull(item)
 
             assertEquals("London", item!!.city)
             assertEquals(15.0, item.temp, 0.0)
             assertEquals(5.0, item.wind, 0.0)
+            assertEquals("clear sky", item.description)
             cancelAndConsumeRemainingEvents()
         }
     }
 
     @Test
     fun `saveWeather should call repository`() = runTest {
-        // Given
+        //given
         val city = "Paris"
         val temp = 20.0
         val wind = 3.0
+        val description = "cloudy"
         coEvery { repository.saveWeatherToDb(any()) } returns Unit
 
-        // When
-        viewModel.saveWeather(city, temp, wind)
+        //when
+        viewModel.saveWeather(city, temp, wind, description)
 
-        // Then
+        // then
         coVerify { repository.saveWeatherToDb(any()) }
     }
 
     @Test
-    fun `loadWeather should not update weather state on error`() = runTest {
-        // Given
+    fun `loadWeather should update error state on error`() = runTest {
+        // given
         val city = "InvalidCity"
         val exception = RuntimeException("City not found")
         coEvery { repository.loadWeatherFromApi(city) } throws exception
 
-        // When
+        //when
         viewModel.loadWeather(city)
 
-        // Then
+        //then
         viewModel.weather.test {
             assertEquals(null, awaitItem())
-            // Убеждаемся, что других событий не было
             expectNoEvents()
+        }
+
+        viewModel.error.test {
+            assertEquals("City not found or invalid name", awaitItem())
         }
     }
 }

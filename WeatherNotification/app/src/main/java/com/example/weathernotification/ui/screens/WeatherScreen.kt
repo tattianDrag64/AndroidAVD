@@ -11,24 +11,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.LightMode
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -48,24 +32,39 @@ fun WeatherScreen(
     onBack: (() -> Unit)? = null
 ) {
 
+    //collecting state from viewModels
     val weather by weatherViewModel.weather.collectAsState()
     val savedWeather by weatherViewModel.savedWeather.collectAsState()
+    val error by weatherViewModel.error.collectAsState()
     var city by remember { mutableStateOf(defaultCity) }
 
+    //theme state
     val currentTheme by themeViewModel.theme.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
+    //effect to load weather data when the screen is opened with a city
     LaunchedEffect(defaultCity, weatherItem) {
         if (weatherItem != null) {
+            //if a specific weather item is passed, show its data
             weatherViewModel.setWeather(weatherItem)
         } else if (defaultCity.isNotBlank()) {
+            //if a city name is passed, load its weather
             weatherViewModel.loadWeather(defaultCity)
         } else {
-            // Очищаем город в текстовом поле, если мы просто зашли на экран
+            //clear the text field if we just entered the screen
             city = ""
         }
     }
 
-    // Очищаем состояние при уходе с экрана
+    //effect to show a snackbar when an error occurs
+    LaunchedEffect(error) {
+        error?.let {
+            snackbarHostState.showSnackbar(it)
+            weatherViewModel.clearError() //clear the error so it doesn't show again
+        }
+    }
+
+    //clear the state when leaving the screen
     DisposableEffect(Unit) {
         onDispose {
             weatherViewModel.clearWeather()
@@ -73,10 +72,12 @@ fun WeatherScreen(
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text("Weather") },
                 actions = {
+                    //button to toggle the theme
                     IconButton(onClick = { themeViewModel.toggleTheme() }) {
                         Icon(
                             imageVector = if (currentTheme == Theme.DARK) Icons.Outlined.LightMode else Icons.Outlined.DarkMode,
@@ -95,6 +96,7 @@ fun WeatherScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
 
+            //textfield for city input
             OutlinedTextField(
                 value = city,
                 onValueChange = { city = it },
@@ -102,6 +104,7 @@ fun WeatherScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
+            //button to trigger weather loading
             Button(
                 onClick = {
                     if (city.isNotBlank()) {
@@ -113,6 +116,7 @@ fun WeatherScreen(
                 Text("Show weather")
             }
 
+            //button to navigate to the list of saved locations
             Button(
                 onClick = {
                     navController.navigate("saved")
@@ -124,6 +128,7 @@ fun WeatherScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            //this block is shown only when weather data is available
             weather?.let { data ->
 
                 Card(
@@ -141,6 +146,10 @@ fun WeatherScreen(
                         )
 
                         Text(
+                            text = "Description: ${data.description}"
+                        )
+
+                        Text(
                             text = "Temperature: ${data.temp} °C"
                         )
 
@@ -150,15 +159,18 @@ fun WeatherScreen(
                     }
                 }
 
+                //check if the current city is already saved
                 val isCitySaved = savedWeather.any { it.city.equals(data.city, ignoreCase = true) }
 
+                //show the save button only if the city is not saved yet
                 if (!isCitySaved) {
                     Button(
                         onClick = {
                             weatherViewModel.saveWeather(
                                 city = data.city,
                                 temp = data.temp,
-                                wind = data.wind
+                                wind = data.wind,
+                                description = data.description
                             )
                         },
                         modifier = Modifier.fillMaxWidth()

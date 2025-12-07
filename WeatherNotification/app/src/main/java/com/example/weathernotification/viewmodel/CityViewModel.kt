@@ -13,17 +13,11 @@ class CityViewModel(application: Application) : AndroidViewModel(application) {
 
     val cities = repository.getAllCities()
 
-    fun addCity(name: String, lat: Double, lon: Double) {
+    fun addCity(name: String) {
         viewModelScope.launch {
             repository.addCity(
-                CityEntity(name = name, latitude = lat, longitude = lon)
+                CityEntity(name = name)
             )
-        }
-    }
-
-    fun deleteCity(city: CityEntity) {
-        viewModelScope.launch {
-            repository.deleteCity(city)
         }
     }
 }

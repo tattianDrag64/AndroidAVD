@@ -22,37 +22,40 @@ fun NavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = "weather" // Главный экран - поиск погоды
+        startDestination = "weather" //main screen - weather search
     ) {
 
-        // Экран со списком сохраненных городов
+        //screen with the list of saved cities
         composable("saved") {
             SavedWeatherScreen(
-                viewModel = weatherViewModel, // viewModel - правильное имя параметра
+                viewModel = weatherViewModel, //viewModel is the correct parameter name
                 navController = navController
             )
         }
 
-        // Экран погоды, может принимать опциональный аргумент city
+        //weather screen, can take an optional city argument
         composable(
             route = "weather?city={city}",
             arguments = listOf(
                 navArgument("city") {
                     type = NavType.StringType
-                    nullable = true // Город может отсутствовать при первом запуске
+                    nullable = true //city can be absent on the first launch
                 }
             )
         ) { backStackEntry ->
+            //getting city from arguments
             val city = backStackEntry.arguments?.getString("city")
+            //getting the list of saved weather
             val savedWeatherList by weatherViewModel.savedWeather.collectAsState()
+            //finding the specific weather item for the city
             val weather = savedWeatherList.find { it.city == city }
 
             WeatherScreen(
                 weatherViewModel = weatherViewModel,
-                themeViewModel = themeViewModel, // Передаем themeViewModel
+                themeViewModel = themeViewModel, //passing the themeViewModel
                 navController = navController,
                 defaultCity = city ?: "",
-                weatherItem = weather, // Передаем найденный город для логики кнопки "Обновить"
+                weatherItem = weather, //passing the found city for the "update" button logic
                 onBack = { navController.popBackStack() }
             )
         }

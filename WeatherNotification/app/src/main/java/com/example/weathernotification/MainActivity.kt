@@ -17,21 +17,26 @@ import com.example.weathernotification.viewmodel.ThemeViewModelFactory
 import com.example.weathernotification.viewmodel.WeatherViewModel
 import com.example.weathernotification.viewmodel.WeatherViewModelFactory
 
+//main activity of the application, entry point
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            //initializing theme repository and viewModel
             val themeRepository = ThemeRepository(LocalContext.current)
             val themeViewModel: ThemeViewModel = viewModel(factory = ThemeViewModelFactory(themeRepository))
             val theme by themeViewModel.theme.collectAsState()
 
+            //applying the selected theme
             WeatherNotificationTheme(
                 darkTheme = theme == Theme.DARK
             ) {
+                //providing weather repository and viewModel
                 val repository = DatabaseProvider.provideWeatherRepository(LocalContext.current)
                 val weatherViewModel: WeatherViewModel = viewModel(
                     factory = WeatherViewModelFactory(repository)
                 )
+                //setting up the navigation graph
                 NavGraph(
                     weatherViewModel = weatherViewModel,
                     themeViewModel = themeViewModel

@@ -36,13 +36,15 @@ fun SavedWeatherScreen(
     viewModel: WeatherViewModel,
     navController: NavController
 ) {
+    //collecting the list of saved weather from the viewModel
     val list by viewModel.savedWeather.collectAsState(initial = emptyList())
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Сохранённые города") },
+                title = { Text("Saved Cities") },
                 navigationIcon = {
+                    //back button to return to the previous screen
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -54,6 +56,7 @@ fun SavedWeatherScreen(
         }
     ) { padding ->
 
+        //displaying a list of items
         LazyColumn(
             modifier = Modifier
                 .padding(padding)
@@ -63,13 +66,16 @@ fun SavedWeatherScreen(
                 WeatherItem(
                     weather = weather,
                     onClick = {
+                        //set the weather in the viewModel and navigate to the main screen
                         viewModel.setWeather(weather)
                         navController.navigate("weather?city=${weather.city}")
                     },
                     onDelete = {
+                        //delete the item from the database
                         viewModel.deleteWeather(weather)
                     },
                     onUpdate = {
+                        //update the weather data for this city
                         viewModel.updateWeather(weather)
                     }
                 )
@@ -89,24 +95,24 @@ fun WeatherItem(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
-            .clickable { onClick() }
+            .clickable { onClick() } //handle clicks on the card
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Город: ${weather.city}")
-            Text("Температура: ${weather.temp}°C")
-            Text("Ветер: ${weather.wind} м/с")
+            Text("City: ${weather.city}")
+            Text("Temperature: ${weather.temp}°C")
+            Text("Wind: ${weather.wind} m/s")
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround
+                horizontalArrangement = Arrangement.SpaceAround //place buttons with space around
             ) {
                 Button(onClick = onUpdate) {
-                    Text("Обновить")
+                    Text("Update")
                 }
                 Button(onClick = onDelete) {
-                    Text("Удалить")
+                    Text("Delete")
                 }
             }
         }

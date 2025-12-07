@@ -1,4 +1,5 @@
 package com.example.weathernotification.data.remote.model
+
 data class WeatherResponse(
     val name: String,
     val main: Main,

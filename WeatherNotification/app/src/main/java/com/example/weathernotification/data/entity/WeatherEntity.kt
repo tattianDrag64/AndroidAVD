@@ -11,5 +11,6 @@ data class WeatherEntity(
     val city: String,
     val temp: Double,
     val wind: Double,
-    val time: String
+    val time: String,
+    val description: String
 )
