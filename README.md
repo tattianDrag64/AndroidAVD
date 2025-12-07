@@ -54,8 +54,7 @@ Layers:
 ## Setup Instructions
 
 1. Clone the repository:
-   ```bash
-      git clone [<your-repository-url>](https://github.com/tattianDrag64/AndroidAVD/WeatherNotification)
+      git clone https://github.com/tattianDrag64/AndroidAVD/WeatherNotification
 2. Open the project in Android Studio.
 Add API Key:
 Open the WeatherRepository.kt file and replace the API key with your own OpenWeather API key.
@@ -74,9 +73,7 @@ The project includes both Unit and UI tests.
 ## APK
 
 The APK file is located in the following path:
- 1. Clone the repository:
-   ```bash
-      git clone [<your-repository-url>](https://github.com/tattianDrag64/AndroidAVD/WeatherNotification)
+(https://github.com/tattianDrag64/AndroidAVD/WeatherNotification)
 ---
 
 ## Screenshots
