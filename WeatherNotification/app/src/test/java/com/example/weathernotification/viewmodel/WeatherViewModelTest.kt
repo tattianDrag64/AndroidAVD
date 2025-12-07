@@ -1,17 +1,20 @@
 package com.example.weathernotification.viewmodel
 
+import android.util.Log
 import app.cash.turbine.test
-import com.example.weathernotification.data.entity.WeatherEntity
 import com.example.weathernotification.data.remote.model.Main
 import com.example.weathernotification.data.remote.model.WeatherResponse
 import com.example.weathernotification.data.remote.model.Wind
 import com.example.weathernotification.data.repository.WeatherRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -24,7 +27,8 @@ import org.junit.Test
 @ExperimentalCoroutinesApi
 class WeatherViewModelTest {
 
-    private val testDispatcher = StandardTestDispatcher()
+    // Используем UnconfinedTestDispatcher для немедленного выполнения корутин
+    private val testDispatcher = UnconfinedTestDispatcher()
 
     private lateinit var repository: WeatherRepository
     private lateinit var viewModel: WeatherViewModel
@@ -33,6 +37,12 @@ class WeatherViewModelTest {
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
         repository = mockk()
+
+        mockkStatic(Log::class)
+        every { Log.e(any(), any<String>()) } returns 0
+        every { Log.e(any(), any(), any()) } returns 0
+
+        every { repository.getSavedWeather() } returns flowOf(emptyList())
         viewModel = WeatherViewModel(repository)
     }
 
@@ -52,17 +62,17 @@ class WeatherViewModelTest {
             weather = emptyList()
         )
         coEvery { repository.loadWeatherFromApi(city) } returns response
-        coEvery { repository.getSavedWeather() } returns kotlinx.coroutines.flow.flowOf(emptyList())
 
         // When
         viewModel.loadWeather(city)
 
         // Then
         viewModel.weather.test {
+            // С UnconfinedTestDispatcher корутина выполняется сразу.
+            // Поэтому мы не увидим начальное значение null, а сразу получим результат.
             val item = awaitItem()
             assertNotNull(item)
-            
-            // Используем `!!` на каждой строке
+
             assertEquals("London", item!!.city)
             assertEquals(15.0, item.temp, 0.0)
             assertEquals(5.0, item.wind, 0.0)
@@ -91,7 +101,6 @@ class WeatherViewModelTest {
         val city = "InvalidCity"
         val exception = RuntimeException("City not found")
         coEvery { repository.loadWeatherFromApi(city) } throws exception
-        coEvery { repository.getSavedWeather() } returns kotlinx.coroutines.flow.flowOf(emptyList())
 
         // When
         viewModel.loadWeather(city)
@@ -99,7 +108,8 @@ class WeatherViewModelTest {
         // Then
         viewModel.weather.test {
             assertEquals(null, awaitItem())
-            cancelAndConsumeRemainingEvents()
+            // Убеждаемся, что других событий не было
+            expectNoEvents()
         }
     }
 }

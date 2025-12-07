@@ -18,7 +18,7 @@ class ThemeRepository(private val context: Context) {
 
     val isDarkTheme: Flow<Boolean> = context.dataStore.data
         .map {
-            it[isDarkThemeKey] ?: false // Default to light theme
+            it[isDarkThemeKey] ?: false //to light theme
         }
 
     suspend fun setTheme(isDarkTheme: Boolean) {

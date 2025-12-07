@@ -10,7 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.weathernotification.data.DatabaseProvider
+import com.example.weathernotification.data.database.DatabaseProvider
 import com.example.weathernotification.ui.screens.SavedWeatherScreen
 import com.example.weathernotification.ui.screens.WeatherScreen
 import com.example.weathernotification.viewmodel.ThemeViewModel
